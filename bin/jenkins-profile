@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+echo "Running ~/esb-tools/bin/jenkins-profile"
+
+if [[ -d ~/esb-tools/lib/profile.d ]]; then
+  echo -n "Sourcing : "
+  for s in $( find ~/esb-tools/lib/profile.d/ -type f ) ; do
+    echo -n "$( basename $s ), "
+    . $s
+  done
+  echo
+fi
+
+export TB=~/esb-tools/toolbox
+export GOGS_URL="http://gogs.esb.tecteo.intra"
+export PATH=$PATH:~/esb-tools/bin
+export EDITOR=vi
+
+. ~/esb-tools/etc/jenkins-profile
+
+if [[ "${EMAIL}" = "" ]]; then 
+  echo "Please change EMAIL Variable in ~/esb-tools/etc/profile"
+fi
+if [[ "${GOGS_TOKEN}" = "" ]]; then
+  echo "Please change GOGS_TOKEN Variable in ~/esb-tools/etc/profile"
+fi
+
+export PYTHONPATH=~/esb-tools/lib/python:${PYTHONPATH:-.}
