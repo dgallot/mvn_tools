@@ -1,3 +1,68 @@
-EMAIL=dominique.gallot@forem.be
-GOGS_TOKEN=
-WINDOWS_USERNAME=glldmn2
+echo "Running ~/bin/profile"
+
+profile_reload()
+{
+  if [[ ! -d ~/etc ]];  then
+    mkdir -p ~/etc
+  fi
+
+  if [[ -d ~/lib/profile.d ]]; then
+    echo -n "Sourcing : "
+    for s in $( find ~/lib/profile.d/ -type f ) ; do 
+      echo -n "$( basename $s ), "
+      . $s
+    done
+    echo
+  fi
+}
+
+profile_reload
+
+export TB=~/toolbox
+export KRF2=$TB/apache-karaf-2.4.3
+export KRF4=$TB/apache-karaf-4.0.9
+export OBF=~/workspace/common-tools/on-boarding/files
+export GITLAB_URL="http://git.esb.tecteo.intra"
+export GOGS_URL="http://gogs.esb.tecteo.intra"
+export PATH=$PATH:~/bin
+export EDITOR=vi
+
+alias dc='docker-compose'
+
+. ~/etc/profile
+
+if [[ "${EMAIL}" = "" ]]; then 
+  echo "Please change EMAIL Variable in ~/etc/profile"  
+fi
+if [[ "${GOGS_TOKEN}" = "" ]]; then
+  echo "Please change GOGS_TOKEN Variable in ~/etc/profile"  
+fi
+if [[ "${WINDOWS_USERNAME}" = "" ]]; then
+  echo "Please set WINDOWS_USERNAME Variable in ~/etc/profile. Default to $( whoami )."  
+  WINDOWS_USERNAME=$( whoami )
+fi
+
+export PYTHONPATH=~/lib/python:${PYTHONPATH:-.}
+
+_THIS_PROFILE_SCRIPT=${BASH_SOURCE[@]}
+
+#H - h
+#H   This help
+h()
+{
+  cat $_THIS_PROFILE_SCRIPT | grep '#H' | perl -p -e 's/#H//' | grep -v _THIS_PROFILE_SCRIPT
+  for s in $( find  ~/lib/profile.d/ -type f ) ; do 
+    cat $s | grep '#H' | perl -p -e 's/#H//'
+    cat $s | grep '#C' | perl -p -e 's/#C//' | while read cmd; do
+      $cmd -h | while read line; do
+        i=$(( $i + 1 ))
+        if (( $i == 1 )); then          
+          echo " - $line"
+        else
+          echo "   $line"
+        fi
+      done
+    done
+done
+}
+
